@@ -6,6 +6,8 @@ import Logo from './components/logo/Logo';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Rank from './components/Rank/Rank';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
+import SignIn from './components/SignIn/SignIn';
+import Register from './components/Register/Register';
 import './App.css';
 
 const particleOptions = {
@@ -30,7 +32,9 @@ class App extends Component {
     this.state = {
       input: '',
       imageURL: '',
-      box: {}
+      box: {},
+      route: 'signin',
+      isSignedIn: false
     }
   }
 
@@ -70,21 +74,47 @@ class App extends Component {
       .catch(err => console.log(err));
   }
 
+  onRouteChange = (route) => {
+    this.setState({
+      route: route
+    });
+    route === 'home'
+      ? this.setState({ isSignedIn: true })
+      : this.setState({ isSignedIn: false });
+  }
+
+
 
 
   render() {
+    const { isSignedIn, route, box, imageURL } = this.state;
+    const { onRouteChange, onInputChange, onButtonSubmit } = this;
     return (
       <div className="App">
         <Particles
           className='particles'
           params={particleOptions} />
-        <Navigation />
-        <Logo />
-        <Rank />
-        <ImageLinkForm
-          onInputChange={this.onInputChange}
-          onButtonSubmit={this.onButtonSubmit} />
-        <FaceRecognition box={this.state.box} imageURL={this.state.imageURL} />
+        <Navigation isSignedIn={isSignedIn} onRouteChange={onRouteChange} />
+        {(() => {
+          switch (route) {
+            case 'signin':
+              return <SignIn onRouteChange={onRouteChange} />
+            case 'register':
+              return <Register onRouteChange={onRouteChange} />
+            case 'home':
+              return <div>
+                <Logo />
+                <Rank />
+                <ImageLinkForm
+                  onInputChange={onInputChange}
+                  onButtonSubmit={onButtonSubmit} />
+                <FaceRecognition box={box} imageURL={imageURL} />
+              </div>
+            default:
+              return null;
+          }
+        })()}
+
       </div>
     );
   }
